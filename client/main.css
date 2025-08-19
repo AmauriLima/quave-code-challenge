@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom animations for premium interface */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-5px) translateX(2px); }
+  50% { transform: translateY(0px) translateX(-2px); }
+  75% { transform: translateY(5px) translateX(1px); }
+}
