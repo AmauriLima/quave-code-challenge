@@ -1,4 +1,4 @@
-import { Meteor } from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 
 export const callAsync = (...args) =>
   new Promise((resolve, reject) => {

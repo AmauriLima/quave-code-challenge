@@ -1,8 +1,14 @@
-import { useTracker } from "meteor/react-meteor-data";
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useCommunities } from "../../../contexts/communities-context";
-import { Meteor } from "meteor/meteor";
-import { People } from "../../../../people/people";
+import { useTracker } from 'meteor/react-meteor-data';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useCommunities } from '../../../contexts/communities-context';
+import { Meteor } from 'meteor/meteor';
+import { People } from '../../../../people/people';
 
 export const EventContext = createContext();
 
@@ -22,27 +28,36 @@ export const EventProvider = ({ children }) => {
     const handle = Meteor.subscribe('people.byCommunity', selectedCommunityId);
     const ready = handle.ready();
     const items = ready
-      ? People.find({ communityId: selectedCommunityId }, { sort: { lastName: 1, firstName: 1 } }).fetch()
+      ? People.find(
+          { communityId: selectedCommunityId },
+          { sort: { lastName: 1, firstName: 1 } }
+        ).fetch()
       : [];
     return { people: items, peopleReady: ready };
   }, [selectedCommunityId]);
 
   const filteredPeople = useMemo(() => {
     let filtered = people;
-    
+
     if (activeTab === 'checked-in') {
       filtered = people.filter((p) => p.checkInAt && !p.checkOutAt);
     } else if (activeTab === 'checked-out') {
       filtered = people.filter((p) => p.checkOutAt);
     }
-    
+
     if (!searchTerm.trim()) return filtered;
     const searchLower = searchTerm.toLowerCase().trim();
     return filtered.filter((person) => {
-      const fullName = `${person.firstName || ''} ${person.lastName || ''}`.trim().toLowerCase();
+      const fullName = `${person.firstName || ''} ${person.lastName || ''}`
+        .trim()
+        .toLowerCase();
       const company = (person.companyName || '').toLowerCase();
       const title = (person.title || '').toLowerCase();
-      return fullName.includes(searchLower) || company.includes(searchLower) || title.includes(searchLower);
+      return (
+        fullName.includes(searchLower) ||
+        company.includes(searchLower) ||
+        title.includes(searchLower)
+      );
     });
   }, [people, searchTerm, activeTab]);
 
@@ -53,7 +68,9 @@ export const EventProvider = ({ children }) => {
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
-    const notIn = people.filter((p) => !p.checkInAt || (p.checkInAt && p.checkOutAt)).length;
+    const notIn = people.filter(
+      (p) => !p.checkInAt || (p.checkInAt && p.checkOutAt)
+    ).length;
     return {
       currentCount: currentlyIn.length,
       companyBreakdown: breakdown,
@@ -62,26 +79,29 @@ export const EventProvider = ({ children }) => {
   }, [people]);
 
   const analytics = useMemo(() => {
-    const checkedOutPeople = people.filter(p => p.checkOutAt);
-    
-    const avgStayTime = checkedOutPeople.length > 0 ? 
-      checkedOutPeople.reduce((sum, p) => {
-        const checkIn = new Date(p.checkInAt).getTime();
-        const checkOut = new Date(p.checkOutAt).getTime();
-        return sum + (checkOut - checkIn);
-      }, 0) / checkedOutPeople.length : 0;
-    
+    const checkedOutPeople = people.filter((p) => p.checkOutAt);
+
+    const avgStayTime =
+      checkedOutPeople.length > 0
+        ? checkedOutPeople.reduce((sum, p) => {
+            const checkIn = new Date(p.checkInAt).getTime();
+            const checkOut = new Date(p.checkOutAt).getTime();
+            return sum + (checkOut - checkIn);
+          }, 0) / checkedOutPeople.length
+        : 0;
+
     const hourlyCheckins = {};
-    people.forEach(p => {
+    people.forEach((p) => {
       if (p.checkInAt) {
         const hour = new Date(p.checkInAt).getHours();
         hourlyCheckins[hour] = (hourlyCheckins[hour] || 0) + 1;
       }
     });
-    
-    const peakHour = Object.entries(hourlyCheckins)
-      .sort((a, b) => b[1] - a[1])[0];
-    
+
+    const peakHour = Object.entries(hourlyCheckins).sort(
+      (a, b) => b[1] - a[1]
+    )[0];
+
     return {
       avgStayTime: Math.round(avgStayTime / (1000 * 60)), // in minutes
       peakHour: peakHour ? `${peakHour[0]}:00` : 'N/A',
@@ -89,17 +109,16 @@ export const EventProvider = ({ children }) => {
     };
   }, [people, companyBreakdown]);
 
-
   useEffect(() => {
     setDisplayedCount(20);
   }, [searchTerm, activeTab]);
 
   const loadMore = () => {
     if (isLoadingMore) return;
-    
+
     setIsLoadingMore(true);
     setTimeout(() => {
-      setDisplayedCount(prev => prev + 20);
+      setDisplayedCount((prev) => prev + 20);
       setIsLoadingMore(false);
     }, 300);
   };
@@ -107,13 +126,14 @@ export const EventProvider = ({ children }) => {
   useEffect(() => {
     const handleScroll = () => {
       if (
-        window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight ||
+        window.innerHeight + document.documentElement.scrollTop !==
+          document.documentElement.offsetHeight ||
         isLoadingMore ||
         filteredPeople.length <= displayedCount
       ) {
         return;
       }
-      
+
       loadMore();
     };
 
@@ -121,42 +141,46 @@ export const EventProvider = ({ children }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isLoadingMore, filteredPeople.length, displayedCount]);
 
+  const value = useMemo(
+    () => ({
+      people,
+      peopleReady,
+      currentCount,
+      companyBreakdown,
+      notCheckedInCount,
+      analytics,
+      filteredPeople,
+      searchTerm,
+      activeTab,
+      setSearchTerm,
+      setActiveTab,
+      loadingActions,
+      setLoadingActions,
+      displayedCount,
+      isLoadingMore,
+      loadMore,
+    }),
+    [
+      people,
+      peopleReady,
+      currentCount,
+      companyBreakdown,
+      notCheckedInCount,
+      analytics,
+      filteredPeople,
+      searchTerm,
+      activeTab,
+      setSearchTerm,
+      setActiveTab,
+      loadingActions,
+      setLoadingActions,
+      displayedCount,
+    ]
+  );
 
-  const value = useMemo(() => ({
-    people,
-    peopleReady,
-    currentCount,
-    companyBreakdown,
-    notCheckedInCount,
-    analytics,
-    filteredPeople,
-    searchTerm,
-    activeTab,
-    setSearchTerm,
-    setActiveTab,
-    loadingActions,
-    setLoadingActions,
-    displayedCount,
-    isLoadingMore,
-    loadMore,
-  }), [
-    people,
-    peopleReady,
-    currentCount,
-    companyBreakdown,
-    notCheckedInCount,
-    analytics,
-    filteredPeople,
-    searchTerm,
-    activeTab,
-    setSearchTerm,
-    setActiveTab,
-    loadingActions,
-    setLoadingActions,
-    displayedCount,
-  ]);
-
-  return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
+  return (
+    <EventContext.Provider value={value}>{children}</EventContext.Provider>
+  );
 };
 
 export const useEvent = () => useContext(EventContext);

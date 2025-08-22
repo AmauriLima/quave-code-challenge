@@ -1,4 +1,3 @@
-
 export const formatDateTime = (date) => {
   if (!date) return 'N/A';
   const d = typeof date === 'string' ? new Date(date) : date;

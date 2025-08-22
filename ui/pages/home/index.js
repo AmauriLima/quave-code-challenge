@@ -5,11 +5,10 @@ import { FeaturesPreview } from './components/features-preview';
 import { Background } from '../event/components/background';
 
 export function Home() {
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <Background />
-      
+
       <div className="relative z-10 w-full max-w-lg">
         <Header />
 

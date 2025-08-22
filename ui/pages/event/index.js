@@ -16,12 +16,12 @@ export function Event() {
 
   return (
     <EventProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900 relative overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-purple-900">
         <Background />
 
         <Header setShowBulkActions={setShowBulkActions} />
 
-        <Summary 
+        <Summary
           setShowCompanyModal={setShowCompanyModal}
           setShowSummaryModal={setShowSummaryModal}
         />
